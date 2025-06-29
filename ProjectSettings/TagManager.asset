@@ -5,6 +5,11 @@ TagManager:
   serializedVersion: 3
   tags:
   - Ground
+  - Win
+  - O
+  - X
+  - o
+  - GroundX
   layers:
   - Default
   - TransparentFX
