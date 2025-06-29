@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
@@ -14,6 +15,8 @@ public class GameManager : MonoBehaviour
     public Button buttonPlay;
     public Button buttonHelp;
     public Button buttonExitHelp;
+
+    public AudioSource backgroundMusic;
 
     private int currentLevelIndex = -1;
 
@@ -35,6 +38,12 @@ public class GameManager : MonoBehaviour
         {
             ShowCanvas(canvasHome);
         });
+
+        if (backgroundMusic != null && !backgroundMusic.isPlaying)
+        {
+            backgroundMusic.loop = true;
+            backgroundMusic.Play();
+        }
     }
     void ShowCanvas(GameObject targetCanvas)
     {
@@ -66,11 +75,7 @@ public class GameManager : MonoBehaviour
             currentLevelIndex = level - 1;
             currentLevel = Instantiate(levelPrefabs[currentLevelIndex], levelParent);
 
-            PlayerController player = FindObjectOfType<PlayerController>();
-            if (player != null)
-            {
-                player.ResetState();
-            }
+            StartCoroutine(ResetPlayerAfterDelay());
 
             Button[] buttons = currentLevel.GetComponentsInChildren<Button>();
             foreach (Button btn in buttons)
@@ -129,7 +134,14 @@ public class GameManager : MonoBehaviour
                 btn.onClick.AddListener(() =>
                 {
                     HideAllCanvases();
-                    LoadLevel(currentLevelIndex + 2);
+                    if (currentLevelIndex + 1 >= levelPrefabs.Length)
+                    {
+                        ShowCanvas(canvasHome);
+                    }
+                    else
+                    {
+                        LoadLevel(currentLevelIndex + 2);
+                    }
                 });
             }
             else if (lowerName.Contains("reset"))
@@ -138,7 +150,14 @@ public class GameManager : MonoBehaviour
                 btn.onClick.AddListener(() =>
                 {
                     HideAllCanvases();
-                    LoadLevel(currentLevelIndex + 1);
+                    if (currentLevelIndex + 1 >= levelPrefabs.Length)
+                    {
+                        LoadLevel(1);
+                    }
+                    else
+                    {
+                        LoadLevel(currentLevelIndex + 1);
+                    }
                 });
             }
         }
@@ -203,5 +222,15 @@ public class GameManager : MonoBehaviour
     public int GetCurrentLevelIndex()
     {
         return currentLevelIndex;
+    }
+    IEnumerator ResetPlayerAfterDelay()
+    {
+        yield return new WaitForEndOfFrame();
+
+        PlayerController player = FindObjectOfType<PlayerController>();
+        if (player != null)
+        {
+            player.ResetState();
+        }
     }
 }
